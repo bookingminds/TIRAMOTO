@@ -8,8 +8,10 @@ const pool = new Pool({
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   max: 10,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000
+  connectionTimeoutMillis: 10000
 });
+
+console.log('[DB] Connecting to:', process.env.DATABASE_URL ? 'postgresql://***@' + process.env.DATABASE_URL.split('@')[1] : 'NO DATABASE_URL SET');
 
 pool.on('error', (err) => {
   console.error('[DB] Pool error:', err.message);
