@@ -3,15 +3,24 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
+function getSSLConfig() {
+  const url = process.env.DATABASE_URL || '';
+  if (url.includes('sslmode=disable') || url.includes('.railway.internal')) return false;
+  if (process.env.DB_SSL === 'false') return false;
+  if (process.env.NODE_ENV === 'production') return { rejectUnauthorized: false };
+  return false;
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: getSSLConfig(),
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000
 });
 
-console.log('[DB] Connecting to:', process.env.DATABASE_URL ? 'postgresql://***@' + process.env.DATABASE_URL.split('@')[1] : 'NO DATABASE_URL SET');
+const dbHost = process.env.DATABASE_URL ? process.env.DATABASE_URL.split('@')[1]?.split('/')[0] : 'NOT SET';
+console.log(`[DB] Connecting to: ${dbHost} (ssl: ${!!getSSLConfig()})`);
 
 pool.on('error', (err) => {
   console.error('[DB] Pool error:', err.message);
