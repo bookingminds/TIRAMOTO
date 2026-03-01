@@ -1,0 +1,92 @@
+<%- include('../partials/header', { titulli: 'Porosi e re' }) %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <a href="/klient" class="back-link">
+      <i class="bi bi-arrow-left"></i> Kthehu tek porositë
+    </a>
+
+    <div class="tm-page-header">
+      <div>
+        <h1>Porosi e re</h1>
+        <p class="subtitle">Plotësoni detajet e dërgesës</p>
+      </div>
+    </div>
+
+    <% if (gabim) { %>
+    <div class="tm-alert tm-alert-danger mb-4">
+      <i class="bi bi-exclamation-circle"></i>
+      <span><%= gabim %></span>
+    </div>
+    <% } %>
+
+    <div class="tm-card">
+      <div class="card-body" style="padding:1.75rem">
+        <form method="POST" action="/klient/porosi-e-re">
+
+          <div class="section-title"><i class="bi bi-geo me-1"></i> Adresat</div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Adresa e marrjes *</label>
+              <input type="text" name="adresa_marrjes" class="form-control" placeholder="p.sh. Rruga Myslym Shyri, Nr. 25" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Adresa e dorëzimit *</label>
+              <input type="text" name="adresa_dorezimit" class="form-control" placeholder="p.sh. Bul. Dëshmorët e Kombit, Nr. 10" required>
+            </div>
+          </div>
+
+          <div class="section-title"><i class="bi bi-telephone me-1"></i> Telefonat</div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Telefoni i marrjes *</label>
+              <input type="tel" name="telefoni_marrjes" class="form-control" placeholder="+355 6X XXX XXXX" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Telefoni i dorëzimit *</label>
+              <input type="tel" name="telefoni_dorezimit" class="form-control" placeholder="+355 6X XXX XXXX" required>
+            </div>
+          </div>
+
+          <div class="section-title"><i class="bi bi-box me-1"></i> Artikulli</div>
+          <div class="mb-3">
+            <label class="form-label">Lloji i artikullit *</label>
+            <select name="pershkrimi" class="form-select" required>
+              <option value="">Zgjidhni llojin...</option>
+              <option value="Dokumente">Dokumente</option>
+              <option value="Çelësa">Çelësa</option>
+              <option value="Ushqim">Ushqim</option>
+              <option value="Paketë e vogël">Paketë e vogël</option>
+              <option value="Ilaçe">Ilaçe</option>
+              <option value="Tjetër">Tjetër</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Shënime shtesë <span style="color:var(--gray-400);font-weight:400">(opsionale)</span></label>
+            <textarea name="shenime" class="form-control" rows="2" placeholder="p.sh. Kati i 3-të, apartamenti 12"></textarea>
+          </div>
+
+          <div class="tm-alert tm-alert-info mb-4">
+            <i class="bi bi-receipt"></i>
+            <div>
+              <strong style="font-size:1.05rem"><%= cmimi %> LEK</strong>
+              <div style="font-size:0.8rem;opacity:0.8;margin-top:2px">Pagesa bëhet me para në dorë tek korrieri</div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-check-lg"></i> Konfirmo porosinë
+            </button>
+            <a href="/klient" class="btn btn-outline-secondary btn-lg">Anulo</a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

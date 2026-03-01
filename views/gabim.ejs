@@ -1,0 +1,31 @@
+<%- include('partials/header', { titulli: 'Gabim' }) %>
+
+<% if (typeof user !== 'undefined' && user) { %>
+<div class="tm-empty fade-in">
+  <div class="tm-empty-icon" style="background:var(--danger-light)">
+    <i class="bi bi-exclamation-triangle" style="color:var(--danger)"></i>
+  </div>
+  <h3><%= mesazhi %></h3>
+  <p>Diçka shkoi keq. Provoni përsëri ose kthehuni në faqen kryesore.</p>
+  <a href="/" class="btn btn-primary">
+    <i class="bi bi-house"></i> Kthehu
+  </a>
+</div>
+<% } else { %>
+<div class="tm-auth-page">
+  <div class="tm-auth-card" style="max-width:400px">
+    <div class="card-body text-center">
+      <div class="tm-empty-icon mx-auto" style="background:var(--danger-light)">
+        <i class="bi bi-exclamation-triangle" style="color:var(--danger)"></i>
+      </div>
+      <h3 class="mt-3 mb-2" style="font-weight:600"><%= mesazhi %></h3>
+      <p style="color:var(--gray-400);font-size:0.9rem">Diçka shkoi keq.</p>
+      <a href="/" class="btn btn-primary mt-2">
+        <i class="bi bi-house"></i> Kthehu
+      </a>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<%- include('partials/footer') %>

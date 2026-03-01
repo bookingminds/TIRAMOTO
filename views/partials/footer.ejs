@@ -1,0 +1,18 @@
+  </main>
+  <% if (typeof user !== 'undefined' && user) { %>
+  <footer class="tm-footer">
+    <div class="container text-center">
+      <small>&copy; 2026 TIRAMOTO &middot; Dërgesa të shpejta në Tiranë</small>
+    </div>
+  </footer>
+  <% if (user.roli === 'klient' || user.roli === 'korrier') { %>
+  <a href="https://wa.me/355690000000?text=Përshëndetje%2C%20kam%20nevojë%20për%20ndihmë%20nga%20TIRAMOTO"
+     target="_blank" rel="noopener" class="tm-whatsapp-fab" title="Ndihmë / WhatsApp">
+    <i class="bi bi-whatsapp"></i>
+    <span class="tm-whatsapp-label">Ndihmë</span>
+  </a>
+  <% } %>
+  <% } %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

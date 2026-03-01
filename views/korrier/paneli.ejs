@@ -1,0 +1,231 @@
+<%- include('../partials/header', { titulli: 'Paneli i korrierit' }) %>
+
+<div class="tm-page-header">
+  <div>
+    <h1>Paneli</h1>
+    <p class="subtitle">Merr porosi të reja ose menaxho porositë e tua</p>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <span style="font-size:0.8rem;color:var(--gray-400)">Aktive:</span>
+    <span style="font-weight:700;color:<%= numriAktive >= maxAktive ? 'var(--danger)' : 'var(--text)' %>"><%= numriAktive %>/<%= maxAktive %></span>
+  </div>
+</div>
+
+<!-- Flash messages -->
+<% if (mesazh) { %>
+<div class="tm-alert tm-alert-success mb-4">
+  <i class="bi bi-check-circle-fill"></i>
+  <span><%= mesazh %></span>
+</div>
+<% } %>
+<% if (gabim) { %>
+<div class="tm-alert tm-alert-danger mb-4">
+  <i class="bi bi-exclamation-circle"></i>
+  <span><%= gabim %></span>
+</div>
+<% } %>
+
+<!-- Tabs -->
+<div class="tm-tabs mb-4">
+  <a href="/korrier?tab=te-reja" class="tm-tab <%= tab === 'te-reja' ? 'active' : '' %>">
+    <i class="bi bi-lightning-charge"></i> Porosi të reja
+    <% if (teReja.length > 0) { %>
+    <span class="tm-tab-count"><%= teReja.length %></span>
+    <% } %>
+  </a>
+  <a href="/korrier?tab=te-miat" class="tm-tab <%= tab === 'te-miat' ? 'active' : '' %>">
+    <i class="bi bi-person-check"></i> Porositë e mia
+    <% if (teMiat.length > 0) { %>
+    <span class="tm-tab-count"><%= teMiat.length %></span>
+    <% } %>
+  </a>
+  <a href="/korrier?tab=te-kryera" class="tm-tab <%= tab === 'te-kryera' ? 'active' : '' %>">
+    <i class="bi bi-check-circle"></i> Të kryera
+  </a>
+</div>
+
+<!-- TAB: New orders (claimable) -->
+<% if (tab === 'te-reja') { %>
+
+  <% if (teReja.length === 0) { %>
+  <div class="tm-empty">
+    <div class="tm-empty-icon">
+      <i class="bi bi-inbox"></i>
+    </div>
+    <h3>Nuk ka porosi të reja</h3>
+    <p>Kur klientët krijojnë porosi, ato do të shfaqen këtu.</p>
+  </div>
+  <% } else { %>
+
+  <% if (numriAktive >= maxAktive) { %>
+  <div class="tm-alert tm-alert-danger mb-4">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>Ke arritur limitin e porosive aktive (<%= maxAktive %>). Dorëzo porositë aktuale para se të marrësh të reja.</span>
+  </div>
+  <% } %>
+
+  <form method="POST" action="/korrier/merr" id="claimForm">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div style="font-size:0.85rem;color:var(--gray-500)">
+        <span id="selectedCount">0</span> porosi të zgjedhura
+      </div>
+      <button type="submit" class="btn btn-primary" id="claimBtn" disabled>
+        <i class="bi bi-hand-index-thumb"></i> I marr
+      </button>
+    </div>
+
+    <div class="row g-3">
+      <% teReja.forEach(p => { %>
+      <div class="col-md-6">
+        <label class="tm-claim-card <%= numriAktive >= maxAktive ? 'disabled' : '' %>">
+          <input type="checkbox" name="porosi_ids" value="<%= p.id %>"
+                 class="claim-check" <%= numriAktive >= maxAktive ? 'disabled' : '' %>>
+          <div class="claim-card-inner">
+            <div class="order-header">
+              <span class="order-id">#<%= p.id %></span>
+              <span class="order-price"><%= p.cmimi %> <small style="font-weight:500;color:var(--gray-400)">LEK</small></span>
+            </div>
+            <div class="order-type">
+              <i class="bi bi-box"></i> <%= p.pershkrimi %>
+            </div>
+            <div class="order-route">
+              <div class="route-point">
+                <span class="route-dot pickup"></span>
+                <span><%= p.adresa_marrjes %></span>
+              </div>
+              <div class="route-point">
+                <span class="route-dot dropoff"></span>
+                <span><%= p.adresa_dorezimit %></span>
+              </div>
+            </div>
+            <div style="font-size:0.78rem;color:var(--gray-400);margin-top:auto;padding-top:0.5rem">
+              <i class="bi bi-clock"></i> <%= new Date(p.krijuar_me).toLocaleString('sq-AL') %>
+            </div>
+          </div>
+        </label>
+      </div>
+      <% }) %>
+    </div>
+  </form>
+  <% } %>
+
+<!-- TAB: My active orders -->
+<% } else if (tab === 'te-miat') { %>
+
+  <% if (teMiat.length === 0) { %>
+  <div class="tm-empty">
+    <div class="tm-empty-icon">
+      <i class="bi bi-person-check"></i>
+    </div>
+    <h3>Nuk keni porosi aktive</h3>
+    <p>Shkoni tek "Porosi të reja" për të marrë porosi.</p>
+    <a href="/korrier?tab=te-reja" class="btn btn-primary">
+      <i class="bi bi-lightning-charge"></i> Shiko porositë e reja
+    </a>
+  </div>
+  <% } else { %>
+  <div class="row g-3">
+    <% teMiat.forEach(p => { %>
+    <div class="col-md-6">
+      <a href="/korrier/porosi/<%= p.id %>" class="text-decoration-none">
+        <div class="tm-order-card" style="border-left:3px solid <%= p.statusi === 'CAKTUAR' ? 'var(--warning)' : 'var(--secondary)' %>">
+          <div class="order-header">
+            <span class="order-id">#<%= p.id %></span>
+            <span class="tm-status tm-status-<%= p.statusi.toLowerCase() %>"><%= statusiLabel(p.statusi) %></span>
+          </div>
+          <div class="order-type">
+            <i class="bi bi-box"></i> <%= p.pershkrimi %>
+          </div>
+          <div class="order-route">
+            <div class="route-point">
+              <span class="route-dot pickup"></span>
+              <span><%= p.adresa_marrjes %></span>
+            </div>
+            <div class="route-point">
+              <span class="route-dot dropoff"></span>
+              <span><%= p.adresa_dorezimit %></span>
+            </div>
+          </div>
+          <div class="order-courier">
+            <i class="bi bi-person"></i> Klient: <%= p.klient_emri %>
+          </div>
+          <div class="order-footer">
+            <span class="order-price"><%= p.cmimi %> <small style="font-weight:500;color:var(--gray-400)">LEK</small></span>
+            <span class="order-time"><%= new Date(p.krijuar_me).toLocaleString('sq-AL') %></span>
+          </div>
+        </div>
+      </a>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+
+<!-- TAB: Completed orders -->
+<% } else if (tab === 'te-kryera') { %>
+
+  <% if (teKryera.length === 0) { %>
+  <div class="tm-empty">
+    <div class="tm-empty-icon">
+      <i class="bi bi-check-circle"></i>
+    </div>
+    <h3>Nuk keni porosi të kryera</h3>
+    <p>Porositë e dorëzuara do të shfaqen këtu.</p>
+  </div>
+  <% } else { %>
+  <div class="row g-3">
+    <% teKryera.forEach(p => { %>
+    <div class="col-md-6">
+      <a href="/korrier/porosi/<%= p.id %>" class="text-decoration-none">
+        <div class="tm-order-card" style="border-left:3px solid var(--success);opacity:0.85">
+          <div class="order-header">
+            <span class="order-id">#<%= p.id %></span>
+            <span class="tm-status tm-status-dorezuar">Dorëzuar</span>
+          </div>
+          <div class="order-type">
+            <i class="bi bi-box"></i> <%= p.pershkrimi %>
+          </div>
+          <div class="order-route">
+            <div class="route-point">
+              <span class="route-dot pickup"></span>
+              <span><%= p.adresa_marrjes %></span>
+            </div>
+            <div class="route-point">
+              <span class="route-dot dropoff"></span>
+              <span><%= p.adresa_dorezimit %></span>
+            </div>
+          </div>
+          <div class="order-footer">
+            <span class="order-price"><%= p.cmimi %> <small style="font-weight:500;color:var(--gray-400)">LEK</small></span>
+            <span class="order-time"><%= p.dorezuar_me ? new Date(p.dorezuar_me).toLocaleString('sq-AL') : '' %></span>
+          </div>
+        </div>
+      </a>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+
+<% } %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const checks = document.querySelectorAll('.claim-check');
+  const countEl = document.getElementById('selectedCount');
+  const btn = document.getElementById('claimBtn');
+  if (!checks.length || !countEl || !btn) return;
+
+  function update() {
+    const n = document.querySelectorAll('.claim-check:checked').length;
+    countEl.textContent = n;
+    btn.disabled = n === 0;
+    btn.innerHTML = n > 0
+      ? '<i class="bi bi-hand-index-thumb"></i> I marr (' + n + ')'
+      : '<i class="bi bi-hand-index-thumb"></i> I marr';
+  }
+
+  checks.forEach(c => c.addEventListener('change', update));
+});
+</script>
+
+<%- include('../partials/footer') %>

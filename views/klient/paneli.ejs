@@ -1,0 +1,63 @@
+<%- include('../partials/header', { titulli: 'Porositë e mia' }) %>
+
+<div class="tm-page-header">
+  <div>
+    <h1>Porositë e mia</h1>
+    <p class="subtitle">Ndiq gjendjen e dërgesave të tua</p>
+  </div>
+  <a href="/klient/porosi-e-re" class="btn btn-primary">
+    <i class="bi bi-plus-lg"></i> Porosi e re
+  </a>
+</div>
+
+<% if (porosite.length === 0) { %>
+<div class="tm-empty">
+  <div class="tm-empty-icon">
+    <i class="bi bi-inbox"></i>
+  </div>
+  <h3>Nuk keni asnjë porosi ende</h3>
+  <p>Krijoni porosinë e parë dhe ne do ta dorëzojmë shpejt.</p>
+  <a href="/klient/porosi-e-re" class="btn btn-primary btn-lg">
+    <i class="bi bi-plus-lg"></i> Krijo porosi
+  </a>
+</div>
+<% } else { %>
+<div class="row g-3">
+  <% porosite.forEach(p => { %>
+  <div class="col-md-6 col-lg-4">
+    <a href="/klient/porosi/<%= p.id %>" class="text-decoration-none">
+      <div class="tm-order-card">
+        <div class="order-header">
+          <span class="order-id">#<%= p.id %></span>
+          <span class="tm-status tm-status-<%= p.statusi.toLowerCase() %>"><%= statusiLabel(p.statusi) %></span>
+        </div>
+        <div class="order-type">
+          <i class="bi bi-box"></i> <%= p.pershkrimi %>
+        </div>
+        <div class="order-route">
+          <div class="route-point">
+            <span class="route-dot pickup"></span>
+            <span><%= p.adresa_marrjes %></span>
+          </div>
+          <div class="route-point">
+            <span class="route-dot dropoff"></span>
+            <span><%= p.adresa_dorezimit %></span>
+          </div>
+        </div>
+        <% if (p.korrier_emri) { %>
+        <div class="order-courier">
+          <i class="bi bi-person-badge"></i> <%= p.korrier_emri %>
+        </div>
+        <% } %>
+        <div class="order-footer">
+          <span class="order-price"><%= p.cmimi %> <small style="font-weight:500;color:var(--gray-400)">LEK</small></span>
+          <span class="order-time"><%= new Date(p.krijuar_me).toLocaleString('sq-AL') %></span>
+        </div>
+      </div>
+    </a>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+
+<%- include('../partials/footer') %>

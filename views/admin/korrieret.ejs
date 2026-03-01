@@ -1,0 +1,88 @@
+<%- include('../partials/header', { titulli: 'Korrierët' }) %>
+
+<div class="tm-page-header">
+  <div>
+    <h1>Korrierët</h1>
+    <p class="subtitle">Menaxho ekipin e korrierëve</p>
+  </div>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#shtoKorrier">
+    <i class="bi bi-plus-lg"></i> Shto korrier
+  </button>
+</div>
+
+<% if (korrieret.length === 0) { %>
+<div class="tm-empty">
+  <div class="tm-empty-icon">
+    <i class="bi bi-people"></i>
+  </div>
+  <h3>Nuk ka korrierë të regjistruar</h3>
+  <p>Shtoni korrierë për të filluar caktimin e porosive.</p>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#shtoKorrier">
+    <i class="bi bi-plus-lg"></i> Shto korrier
+  </button>
+</div>
+<% } else { %>
+<div class="row g-3">
+  <% korrieret.forEach(k => { %>
+  <div class="col-md-6 col-lg-4">
+    <div class="tm-courier-card">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="tm-courier-avatar"><%= k.emri.charAt(0) %></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%= k.emri %></div>
+          <div style="font-size:0.8rem;color:var(--gray-400)"><%= k.email %></div>
+        </div>
+      </div>
+      <div style="font-size:0.85rem;color:var(--gray-500);margin-bottom:0.85rem">
+        <i class="bi bi-telephone"></i> <%= k.telefoni || '—' %>
+      </div>
+      <div class="d-flex gap-2">
+        <span class="tm-courier-stat active"><i class="bi bi-clock"></i> <%= k.aktive %> aktive</span>
+        <span class="tm-courier-stat completed"><i class="bi bi-check-circle"></i> <%= k.dorezuar %> dorëzuar</span>
+      </div>
+    </div>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+
+<!-- Add courier modal -->
+<div class="modal fade" id="shtoKorrier" tabindex="-1" aria-labelledby="shtoKorrierLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title" id="shtoKorrierLabel"><i class="bi bi-person-plus me-2"></i>Shto korrier të ri</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Mbyll"></button>
+      </div>
+      <form method="POST" action="/admin/shto-korrier">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Emri i plotë</label>
+            <input type="text" name="emri" class="form-control" placeholder="p.sh. Andi Hoxha" required>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" placeholder="emaili@example.com" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Telefoni</label>
+              <input type="tel" name="telefoni" class="form-control" placeholder="+355 6X XXX XXXX" required>
+            </div>
+          </div>
+          <div class="mb-0">
+            <label class="form-label">Fjalëkalimi</label>
+            <input type="password" name="fjalekalimi" class="form-control" minlength="6" required>
+            <div class="form-text">Së paku 6 karaktere</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anulo</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Shto korrier</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

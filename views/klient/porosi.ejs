@@ -1,0 +1,126 @@
+<%- include('../partials/header', { titulli: 'Porosi #' + porosi.id }) %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <a href="/klient" class="back-link">
+      <i class="bi bi-arrow-left"></i> Kthehu tek porositë
+    </a>
+
+    <div class="tm-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span style="font-weight:700;font-size:1.05rem">Porosi #<%= porosi.id %></span>
+        <span class="tm-status tm-status-<%= porosi.statusi.toLowerCase() %>"><%= statusiLabel(porosi.statusi) %></span>
+      </div>
+      <div class="card-body" style="padding:1.75rem">
+
+        <!-- Status timeline -->
+        <div class="tm-timeline">
+          <div class="tm-timeline-step step-new <%= ['E_RE','CAKTUAR','MARRE','DOREZUAR'].includes(porosi.statusi) ? 'active' : '' %>">
+            <div class="tm-timeline-dot"><i class="bi bi-plus-lg"></i></div>
+            <div class="tm-timeline-label">E Re</div>
+            <div class="tm-timeline-time"><%= porosi.krijuar_me ? new Date(porosi.krijuar_me).toLocaleString('sq-AL') : '—' %></div>
+          </div>
+          <div class="tm-timeline-step step-assigned <%= ['CAKTUAR','MARRE','DOREZUAR'].includes(porosi.statusi) ? 'active' : '' %>">
+            <div class="tm-timeline-dot"><i class="bi bi-person-check"></i></div>
+            <div class="tm-timeline-label">Caktuar</div>
+            <div class="tm-timeline-time"><%= porosi.caktuar_me ? new Date(porosi.caktuar_me).toLocaleString('sq-AL') : '—' %></div>
+          </div>
+          <div class="tm-timeline-step step-picked <%= ['MARRE','DOREZUAR'].includes(porosi.statusi) ? 'active' : '' %>">
+            <div class="tm-timeline-dot"><i class="bi bi-bag-check"></i></div>
+            <div class="tm-timeline-label">Marrë</div>
+            <div class="tm-timeline-time"><%= porosi.marre_me ? new Date(porosi.marre_me).toLocaleString('sq-AL') : '—' %></div>
+          </div>
+          <div class="tm-timeline-step step-delivered <%= porosi.statusi === 'DOREZUAR' ? 'active' : '' %>">
+            <div class="tm-timeline-dot"><i class="bi bi-check-lg"></i></div>
+            <div class="tm-timeline-label">Dorëzuar</div>
+            <div class="tm-timeline-time"><%= porosi.dorezuar_me ? new Date(porosi.dorezuar_me).toLocaleString('sq-AL') : '—' %></div>
+          </div>
+        </div>
+
+        <% if (porosi.statusi === 'ANULUAR') { %>
+        <div class="tm-alert tm-alert-danger mb-4">
+          <i class="bi bi-x-circle-fill"></i>
+          <span>Kjo porosi është anuluar.</span>
+        </div>
+        <% } %>
+
+        <div class="divider"></div>
+
+        <!-- Details -->
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-geo-alt me-1" style="color:var(--success)"></i> Adresa e marrjes</div>
+              <div class="tm-info-value"><%= porosi.adresa_marrjes %></div>
+              <div style="color:var(--gray-400);font-size:0.85rem;margin-top:4px"><i class="bi bi-telephone"></i> <%= porosi.telefoni_marrjes %></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-geo-alt-fill me-1" style="color:var(--danger)"></i> Adresa e dorëzimit</div>
+              <div class="tm-info-value"><%= porosi.adresa_dorezimit %></div>
+              <div style="color:var(--gray-400);font-size:0.85rem;margin-top:4px"><i class="bi bi-telephone"></i> <%= porosi.telefoni_dorezimit %></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-box me-1"></i> Artikulli</div>
+              <div class="tm-info-value"><%= porosi.pershkrimi %></div>
+              <% if (porosi.shenime) { %>
+              <div style="color:var(--gray-400);font-size:0.85rem;margin-top:4px"><i class="bi bi-sticky"></i> <%= porosi.shenime %></div>
+              <% } %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-cash me-1"></i> Çmimi</div>
+              <div class="tm-price"><%= porosi.cmimi %> <span class="currency">LEK</span></div>
+              <div style="color:var(--gray-400);font-size:0.8rem;margin-top:2px">Para në dorë</div>
+            </div>
+          </div>
+        </div>
+
+        <% if (porosi.korrier_emri) { %>
+        <div class="divider"></div>
+        <div class="tm-info-block">
+          <div class="tm-info-label"><i class="bi bi-person-badge me-1"></i> Korrieri</div>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--primary-light),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.9rem">
+              <%= porosi.korrier_emri.charAt(0) %>
+            </div>
+            <div>
+              <div class="tm-info-value" style="font-weight:600"><%= porosi.korrier_emri %></div>
+              <% if (porosi.korrier_telefoni) { %>
+              <div style="color:var(--gray-400);font-size:0.85rem"><i class="bi bi-telephone"></i> <%= porosi.korrier_telefoni %></div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        <% } %>
+
+        <% if (historiku.length > 0) { %>
+        <div class="divider"></div>
+        <div class="tm-info-label"><i class="bi bi-clock-history me-1"></i> Historiku</div>
+        <ul class="tm-log">
+          <% historiku.forEach(h => { %>
+          <li class="tm-log-item">
+            <div>
+              <span class="tm-log-action"><%= h.veprimi %></span>
+              <% if (h.perdoruesi_emri) { %>
+              <span class="tm-log-user"> &middot; <%= h.perdoruesi_emri %></span>
+              <% } %>
+            </div>
+            <span class="tm-log-time"><%= new Date(h.krijuar_me).toLocaleString('sq-AL') %></span>
+          </li>
+          <% }) %>
+        </ul>
+        <% } %>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,160 @@
+<%- include('../partials/header', { titulli: 'Porosi #' + porosi.id }) %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+
+    <a href="/admin" class="back-link">
+      <i class="bi bi-arrow-left"></i> Kthehu tek paneli
+    </a>
+
+    <div class="tm-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span style="font-weight:700;font-size:1.05rem">Porosi #<%= porosi.id %></span>
+        <span class="tm-status tm-status-<%= porosi.statusi.toLowerCase() %>"><%= statusiLabel(porosi.statusi) %></span>
+      </div>
+      <div class="card-body" style="padding:1.75rem">
+
+        <!-- People -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <div class="tm-info-label"><i class="bi bi-person me-1"></i> Klienti</div>
+            <div class="d-flex align-items-center gap-3">
+              <div style="width:42px;height:42px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;color:var(--gray-600);flex-shrink:0">
+                <%= porosi.klient_emri.charAt(0) %>
+              </div>
+              <div>
+                <div style="font-weight:600"><%= porosi.klient_emri %></div>
+                <div style="font-size:0.8rem;color:var(--gray-400)"><i class="bi bi-envelope"></i> <%= porosi.klient_email %></div>
+                <div style="font-size:0.8rem;color:var(--gray-400)"><i class="bi bi-telephone"></i> <%= porosi.klient_telefoni %></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="tm-info-label"><i class="bi bi-person-badge me-1"></i> Korrieri</div>
+            <% if (porosi.korrier_emri) { %>
+            <div class="d-flex align-items-center gap-3">
+              <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--primary-light),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;color:#fff;flex-shrink:0">
+                <%= porosi.korrier_emri.charAt(0) %>
+              </div>
+              <div>
+                <div style="font-weight:600"><%= porosi.korrier_emri %></div>
+                <div style="font-size:0.8rem;color:var(--gray-400)"><i class="bi bi-telephone"></i> <%= porosi.korrier_telefoni %></div>
+              </div>
+            </div>
+            <% } else { %>
+            <div style="color:var(--gray-400);font-size:0.9rem">Në pritje — korrierët mund ta marrin vetë</div>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Addresses -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-geo-alt me-1" style="color:var(--success)"></i> Adresa e marrjes</div>
+              <div class="tm-info-value"><%= porosi.adresa_marrjes %></div>
+              <div style="color:var(--gray-400);font-size:0.85rem;margin-top:4px"><i class="bi bi-telephone"></i> <%= porosi.telefoni_marrjes %></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-geo-alt-fill me-1" style="color:var(--danger)"></i> Adresa e dorëzimit</div>
+              <div class="tm-info-value"><%= porosi.adresa_dorezimit %></div>
+              <div style="color:var(--gray-400);font-size:0.85rem;margin-top:4px"><i class="bi bi-telephone"></i> <%= porosi.telefoni_dorezimit %></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item and price -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-box me-1"></i> Artikulli</div>
+              <div class="tm-info-value"><%= porosi.pershkrimi %></div>
+              <% if (porosi.shenime) { %>
+              <div style="color:var(--gray-400);font-size:0.85rem;margin-top:4px"><i class="bi bi-sticky"></i> <%= porosi.shenime %></div>
+              <% } %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-cash me-1"></i> Çmimi</div>
+              <div class="tm-price"><%= porosi.cmimi %> <span class="currency">LEK</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timestamps -->
+        <div class="row g-3 mb-4" style="font-size:0.85rem">
+          <div class="col-6 col-md-3">
+            <div style="color:var(--gray-400);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Krijuar</div>
+            <div style="font-weight:500"><%= porosi.krijuar_me ? new Date(porosi.krijuar_me).toLocaleString('sq-AL') : '—' %></div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div style="color:var(--gray-400);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Caktuar</div>
+            <div style="font-weight:500"><%= porosi.caktuar_me ? new Date(porosi.caktuar_me).toLocaleString('sq-AL') : '—' %></div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div style="color:var(--gray-400);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Marrë</div>
+            <div style="font-weight:500"><%= porosi.marre_me ? new Date(porosi.marre_me).toLocaleString('sq-AL') : '—' %></div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div style="color:var(--gray-400);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Dorëzuar</div>
+            <div style="font-weight:500"><%= porosi.dorezuar_me ? new Date(porosi.dorezuar_me).toLocaleString('sq-AL') : '—' %></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Admin actions: cancel only -->
+        <% if (porosi.statusi !== 'DOREZUAR' && porosi.statusi !== 'ANULUAR') { %>
+        <form method="POST" action="/admin/porosi/<%= porosi.id %>/anulo" class="mb-3"
+              onsubmit="return confirm('Jeni i sigurt që doni ta anuloni këtë porosi?')">
+          <button type="submit" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-x-circle"></i> Anulo porosinë
+          </button>
+        </form>
+        <% } %>
+
+        <% if (porosi.statusi === 'ANULUAR') { %>
+        <div class="tm-alert tm-alert-danger mb-3">
+          <i class="bi bi-x-circle-fill"></i>
+          <span>Kjo porosi është anuluar.</span>
+        </div>
+        <% } %>
+
+        <% if (porosi.statusi === 'DOREZUAR') { %>
+        <div class="tm-alert tm-alert-success mb-3">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Kjo porosi është dorëzuar me sukses.</span>
+        </div>
+        <% } %>
+
+        <!-- History -->
+        <% if (historiku.length > 0) { %>
+        <div class="divider"></div>
+        <div class="tm-info-label"><i class="bi bi-clock-history me-1"></i> Historiku i veprimeve</div>
+        <ul class="tm-log">
+          <% historiku.forEach(h => { %>
+          <li class="tm-log-item">
+            <div>
+              <span class="tm-log-action"><%= h.veprimi %></span>
+              <% if (h.perdoruesi_emri) { %>
+              <span class="tm-log-user"> &middot; <%= h.perdoruesi_emri %></span>
+              <% } %>
+            </div>
+            <span class="tm-log-time"><%= new Date(h.krijuar_me).toLocaleString('sq-AL') %></span>
+          </li>
+          <% }) %>
+        </ul>
+        <% } %>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

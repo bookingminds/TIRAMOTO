@@ -1,0 +1,97 @@
+<%- include('../partials/header', { titulli: 'Porosi #' + porosi.id }) %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <a href="/korrier" class="back-link">
+      <i class="bi bi-arrow-left"></i> Kthehu tek porositë
+    </a>
+
+    <div class="tm-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span style="font-weight:700;font-size:1.05rem">Porosi #<%= porosi.id %></span>
+        <span class="tm-status tm-status-<%= porosi.statusi.toLowerCase() %>"><%= statusiLabel(porosi.statusi) %></span>
+      </div>
+      <div class="card-body" style="padding:1.75rem">
+
+        <!-- Address cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="tm-address-card pickup">
+              <h6><i class="bi bi-geo-alt"></i> Adresa e marrjes</h6>
+              <div class="address"><%= porosi.adresa_marrjes %></div>
+              <a href="tel:<%= porosi.telefoni_marrjes %>" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-telephone-fill"></i> <%= porosi.telefoni_marrjes %>
+              </a>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="tm-address-card dropoff">
+              <h6><i class="bi bi-geo-alt-fill"></i> Adresa e dorëzimit</h6>
+              <div class="address"><%= porosi.adresa_dorezimit %></div>
+              <a href="tel:<%= porosi.telefoni_dorezimit %>" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-telephone-fill"></i> <%= porosi.telefoni_dorezimit %>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item details -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-box me-1"></i> Artikulli</div>
+              <div class="tm-info-value" style="font-weight:600;font-size:1.1rem"><%= porosi.pershkrimi %></div>
+              <% if (porosi.shenime) { %>
+              <div class="tm-alert tm-alert-info mt-2" style="padding:0.65rem 0.85rem;font-size:0.83rem">
+                <i class="bi bi-sticky-fill"></i>
+                <span><%= porosi.shenime %></span>
+              </div>
+              <% } %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-person me-1"></i> Klienti</div>
+              <div class="tm-info-value" style="font-weight:500"><%= porosi.klient_emri %></div>
+              <a href="tel:<%= porosi.klient_telefoni %>" style="color:var(--primary);font-size:0.85rem;text-decoration:none">
+                <i class="bi bi-telephone"></i> <%= porosi.klient_telefoni %>
+              </a>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="tm-info-block">
+              <div class="tm-info-label"><i class="bi bi-cash me-1"></i> Për tu mbledhur</div>
+              <div class="tm-price"><%= porosi.cmimi %> <span class="currency">LEK</span></div>
+              <div style="color:var(--gray-400);font-size:0.75rem">Para në dorë</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <% if (porosi.statusi === 'CAKTUAR') { %>
+        <form method="POST" action="/korrier/porosi/<%= porosi.id %>/marre">
+          <button type="submit" class="tm-action-btn pickup-btn">
+            <i class="bi bi-bag-check-fill"></i> E mora artikullin
+          </button>
+        </form>
+        <% } else if (porosi.statusi === 'MARRE') { %>
+        <form method="POST" action="/korrier/porosi/<%= porosi.id %>/dorezuar">
+          <button type="submit" class="tm-action-btn deliver-btn">
+            <i class="bi bi-check-circle-fill"></i> E dorëzova
+          </button>
+        </form>
+        <% } else if (porosi.statusi === 'DOREZUAR') { %>
+        <div class="tm-alert tm-alert-success" style="justify-content:center;font-weight:600;font-size:1rem">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Kjo porosi është dorëzuar me sukses!</span>
+        </div>
+        <% } %>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
