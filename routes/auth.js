@@ -99,9 +99,11 @@ router.get('/auth/google/callback', (req, res, next) => {
 });
 
 router.get('/dil', (req, res) => {
-  req.logout(() => {});
-  req.session.destroy();
-  res.redirect('/hyr');
+  req.logout(function() {
+    req.session.destroy(function() {
+      res.redirect('/hyr');
+    });
+  });
 });
 
 module.exports = router;
