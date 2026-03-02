@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../db/init');
 const { kerkoRolin } = require('../middleware/auth');
 
-const MAX_AKTIVE = 5;
+const MAX_AKTIVE = 3;
 
 router.use(kerkoRolin('korrier'));
 
