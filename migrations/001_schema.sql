@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS porosite (
   pershkrimi TEXT NOT NULL,
   shenime TEXT,
   cmimi REAL DEFAULT 300,
-  statusi TEXT DEFAULT 'E_RE' CHECK (statusi IN ('E_RE', 'CAKTUAR', 'MARRE', 'DOREZUAR', 'ANULUAR')),
+  statusi TEXT DEFAULT 'E_RE' CHECK (statusi IN ('E_RE', 'NE_PRITJE', 'CAKTUAR', 'MARRE', 'DOREZUAR', 'ANULUAR')),
   krijuar_me TIMESTAMPTZ DEFAULT NOW(),
   caktuar_me TIMESTAMPTZ,
   marre_me TIMESTAMPTZ,

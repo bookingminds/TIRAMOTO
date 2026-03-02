@@ -19,6 +19,14 @@ router.get('/', async (req, res) => {
     const mesazh = req.query.mesazh || null;
     const gabim = req.query.gabim || null;
 
+    const nePritje = await db.getAll(`
+      SELECT p.*, kl.emri as klient_emri
+      FROM porosite p
+      JOIN perdoruesit kl ON p.klient_id = kl.id
+      WHERE p.korrier_id = $1 AND p.statusi = 'NE_PRITJE'
+      ORDER BY p.krijuar_me DESC
+    `, [req.session.user.id]);
+
     const teMiat = await db.getAll(`
       SELECT p.*, kl.emri as klient_emri, kl.telefoni as klient_telefoni
       FROM porosite p
@@ -49,7 +57,7 @@ router.get('/', async (req, res) => {
     const numriAktive = teMiat.length;
 
     res.render('korrier/paneli', {
-      tab, teMiat, teKryera, teReja, numriAktive, maxAktive: MAX_AKTIVE, mesazh, gabim
+      tab, teMiat, teKryera, teReja, nePritje, numriAktive, maxAktive: MAX_AKTIVE, mesazh, gabim
     });
   } catch (err) {
     console.error('[COURIER] Dashboard error:', err.message);
@@ -73,7 +81,7 @@ router.post('/merr', async (req, res) => {
     if (!Array.isArray(porosi_ids)) porosi_ids = [porosi_ids];
 
     const aktiveResult = await client.query(
-      "SELECT COUNT(*) as n FROM porosite WHERE korrier_id = $1 AND statusi IN ('CAKTUAR', 'MARRE')",
+      "SELECT COUNT(*) as n FROM porosite WHERE korrier_id = $1 AND statusi IN ('NE_PRITJE', 'CAKTUAR', 'MARRE')",
       [req.session.user.id]
     );
     const aktive = parseInt(aktiveResult.rows[0].n);
@@ -84,7 +92,7 @@ router.post('/merr', async (req, res) => {
         encodeURIComponent(`Ke arritur limitin e porosive aktive. Maksimumi: ${MAX_AKTIVE}, aktive tani: ${aktive}.`));
     }
 
-    let morraSukseshem = 0;
+    let kerkuarSukseshem = 0;
     let vecTeMarrura = 0;
 
     await client.query('BEGIN');
@@ -92,7 +100,7 @@ router.post('/merr', async (req, res) => {
     for (const id of porosi_ids) {
       const result = await client.query(
         `UPDATE porosite
-         SET korrier_id = $1, statusi = 'CAKTUAR', caktuar_me = NOW()
+         SET korrier_id = $1, statusi = 'NE_PRITJE'
          WHERE id = $2 AND statusi = 'E_RE' AND korrier_id IS NULL`,
         [req.session.user.id, id]
       );
@@ -100,9 +108,9 @@ router.post('/merr', async (req, res) => {
       if (result.rowCount > 0) {
         await client.query(
           'INSERT INTO historiku (porosi_id, veprimi, perdoruesi_id) VALUES ($1, $2, $3)',
-          [id, 'Porosia u mor nga korrieri', req.session.user.id]
+          [id, 'Korrieri kërkoi të marrë porosinë (në pritje konfirmimi)', req.session.user.id]
         );
-        morraSukseshem++;
+        kerkuarSukseshem++;
       } else {
         vecTeMarrura++;
       }
@@ -111,17 +119,17 @@ router.post('/merr', async (req, res) => {
     await client.query('COMMIT');
     client.release();
 
-    if (vecTeMarrura > 0 && morraSukseshem === 0) {
+    if (vecTeMarrura > 0 && kerkuarSukseshem === 0) {
       return res.redirect('/korrier?tab=te-reja&gabim=' +
         encodeURIComponent('Kjo porosi u mor nga një korrier tjetër. Lista u rifreskua.'));
     }
 
-    let msg = `U morën ${morraSukseshem} porosi me sukses.`;
+    let msg = `U kërkuan ${kerkuarSukseshem} porosi. Në pritje të konfirmimit nga admini.`;
     if (vecTeMarrura > 0) {
       msg += ` ${vecTeMarrura} porosi ishin marrë nga korrier tjetër.`;
     }
 
-    res.redirect('/korrier?tab=te-miat&mesazh=' + encodeURIComponent(msg));
+    res.redirect('/korrier?tab=ne-pritje&mesazh=' + encodeURIComponent(msg));
   } catch (err) {
     await client.query('ROLLBACK');
     client.release();

@@ -3,43 +3,56 @@
 <div class="tm-page-header">
   <div>
     <h1>Paneli</h1>
-    <p class="subtitle">Ndiq të gjitha porositë — korrierët i marrin vetë</p>
+    <p class="subtitle">Menaxho porositë dhe konfirmo kërkesat e korrierëve</p>
   </div>
 </div>
 
+<% if (numrat.ne_pritje > 0) { %>
+<div class="tm-alert tm-alert-warning mb-4" style="display:flex;align-items:center;justify-content:space-between">
+  <span><i class="bi bi-bell-fill"></i> <strong><%= numrat.ne_pritje %></strong> porosi presin konfirmimin tënd!</span>
+  <a href="/admin?statusi=NE_PRITJE" class="btn btn-warning btn-sm">Shiko tani</a>
+</div>
+<% } %>
+
 <!-- Stat cards -->
 <div class="row g-3 mb-4">
-  <div class="col-6 col-md-2">
+  <div class="col-6 col-lg">
     <a href="/admin" class="tm-stat <%= !statusi ? 'active' : '' %>">
       <div class="tm-stat-number"><%= numrat.te_gjitha %></div>
       <div class="tm-stat-label">Të gjitha</div>
     </a>
   </div>
-  <div class="col-6 col-md-2">
+  <div class="col-6 col-lg">
     <a href="/admin?statusi=E_RE" class="tm-stat <%= statusi === 'E_RE' ? 'active' : '' %>">
       <div class="tm-stat-number" style="color:var(--primary)"><%= numrat.e_re %></div>
       <div class="tm-stat-label">E Re</div>
     </a>
   </div>
-  <div class="col-6 col-md-2">
+  <div class="col-6 col-lg">
+    <a href="/admin?statusi=NE_PRITJE" class="tm-stat <%= statusi === 'NE_PRITJE' ? 'active' : '' %>" style="<%= numrat.ne_pritje > 0 ? 'border-color:var(--warning);background:rgba(255,193,7,0.05)' : '' %>">
+      <div class="tm-stat-number" style="color:var(--warning)"><%= numrat.ne_pritje %></div>
+      <div class="tm-stat-label">Në pritje</div>
+    </a>
+  </div>
+  <div class="col-6 col-lg">
     <a href="/admin?statusi=CAKTUAR" class="tm-stat <%= statusi === 'CAKTUAR' ? 'active' : '' %>">
-      <div class="tm-stat-number" style="color:var(--warning)"><%= numrat.caktuar %></div>
+      <div class="tm-stat-number" style="color:var(--info, #0dcaf0)"><%= numrat.caktuar %></div>
       <div class="tm-stat-label">Caktuar</div>
     </a>
   </div>
-  <div class="col-6 col-md-2">
+  <div class="col-6 col-lg">
     <a href="/admin?statusi=MARRE" class="tm-stat <%= statusi === 'MARRE' ? 'active' : '' %>">
       <div class="tm-stat-number" style="color:var(--secondary)"><%= numrat.marre %></div>
       <div class="tm-stat-label">Marrë</div>
     </a>
   </div>
-  <div class="col-6 col-md-2">
+  <div class="col-6 col-lg">
     <a href="/admin?statusi=DOREZUAR" class="tm-stat <%= statusi === 'DOREZUAR' ? 'active' : '' %>">
       <div class="tm-stat-number" style="color:var(--success)"><%= numrat.dorezuar %></div>
       <div class="tm-stat-label">Dorëzuar</div>
     </a>
   </div>
-  <div class="col-6 col-md-2">
+  <div class="col-6 col-lg">
     <a href="/admin?statusi=ANULUAR" class="tm-stat <%= statusi === 'ANULUAR' ? 'active' : '' %>">
       <div class="tm-stat-number" style="color:var(--danger)"><%= numrat.anuluar %></div>
       <div class="tm-stat-label">Anuluar</div>
@@ -97,6 +110,14 @@
           <td><span class="tm-status tm-status-<%= p.statusi.toLowerCase() %>"><%= statusiLabel(p.statusi) %></span></td>
           <td><span style="font-size:0.8rem;color:var(--gray-400)"><%= new Date(p.krijuar_me).toLocaleString('sq-AL') %></span></td>
           <td style="text-align:right;white-space:nowrap">
+            <% if (p.statusi === 'NE_PRITJE') { %>
+            <form method="POST" action="/admin/porosi/<%= p.id %>/konfirmo" style="display:inline">
+              <button type="submit" class="btn btn-success btn-sm" title="Konfirmo"><i class="bi bi-check-lg"></i></button>
+            </form>
+            <form method="POST" action="/admin/porosi/<%= p.id %>/refuzo" style="display:inline">
+              <button type="submit" class="btn btn-outline-danger btn-sm" title="Refuzo"><i class="bi bi-x-lg"></i></button>
+            </form>
+            <% } %>
             <a href="/admin/porosi/<%= p.id %>" class="btn btn-ghost btn-sm" title="Shiko">
               <i class="bi bi-eye"></i>
             </a>

@@ -40,6 +40,12 @@
     <span class="tm-tab-count"><%= teReja.length %></span>
     <% } %>
   </a>
+  <a href="/korrier?tab=ne-pritje" class="tm-tab <%= tab === 'ne-pritje' ? 'active' : '' %>">
+    <i class="bi bi-hourglass-split"></i> Në pritje
+    <% if (nePritje.length > 0) { %>
+    <span class="tm-tab-count" style="background:var(--warning);color:#000"><%= nePritje.length %></span>
+    <% } %>
+  </a>
   <a href="/korrier?tab=te-miat" class="tm-tab <%= tab === 'te-miat' ? 'active' : '' %>">
     <i class="bi bi-person-check"></i> Porositë e mia
     <% if (teMiat.length > 0) { %>
@@ -115,6 +121,52 @@
       <% }) %>
     </div>
   </form>
+  <% } %>
+
+<!-- TAB: Pending approval -->
+<% } else if (tab === 'ne-pritje') { %>
+
+  <% if (nePritje.length === 0) { %>
+  <div class="tm-empty">
+    <div class="tm-empty-icon">
+      <i class="bi bi-hourglass-split"></i>
+    </div>
+    <h3>Nuk keni porosi në pritje</h3>
+    <p>Kur kërkoni porosi, ato do presin konfirmimin e adminit këtu.</p>
+  </div>
+  <% } else { %>
+  <div class="tm-alert tm-alert-warning mb-4">
+    <i class="bi bi-hourglass-split"></i>
+    <span>Këto porosi presin konfirmimin e adminit. Do njoftoheni kur të konfirmohen.</span>
+  </div>
+  <div class="row g-3">
+    <% nePritje.forEach(p => { %>
+    <div class="col-md-6">
+      <div class="tm-order-card" style="border-left:3px solid var(--warning);opacity:0.9">
+        <div class="order-header">
+          <span class="order-id">#<%= p.id %></span>
+          <span class="tm-status tm-status-ne_pritje">Në pritje</span>
+        </div>
+        <div class="order-type">
+          <i class="bi bi-box"></i> <%= p.pershkrimi %>
+        </div>
+        <div class="order-route">
+          <div class="route-point">
+            <span class="route-dot pickup"></span>
+            <span><%= p.adresa_marrjes %></span>
+          </div>
+          <div class="route-point">
+            <span class="route-dot dropoff"></span>
+            <span><%= p.adresa_dorezimit %></span>
+          </div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--gray-400);margin-top:auto;padding-top:0.5rem">
+          <i class="bi bi-clock"></i> <%= new Date(p.krijuar_me).toLocaleString('sq-AL') %>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
   <% } %>
 
 <!-- TAB: My active orders -->

@@ -76,11 +76,11 @@ require('./config/passport')(passport);
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.statusiLabel = (s) => ({
-    'E_RE': 'E Re', 'CAKTUAR': 'Caktuar', 'MARRE': 'Marrë',
+    'E_RE': 'E Re', 'NE_PRITJE': 'Në pritje', 'CAKTUAR': 'Caktuar', 'MARRE': 'Marrë',
     'DOREZUAR': 'Dorëzuar', 'ANULUAR': 'Anuluar'
   }[s] || s);
   res.locals.statusiBadge = (s) => ({
-    'E_RE': 'info', 'CAKTUAR': 'warning', 'MARRE': 'primary',
+    'E_RE': 'info', 'NE_PRITJE': 'warning', 'CAKTUAR': 'warning', 'MARRE': 'primary',
     'DOREZUAR': 'success', 'ANULUAR': 'danger'
   }[s] || 'secondary');
   next();

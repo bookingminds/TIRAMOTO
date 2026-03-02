@@ -421,6 +421,12 @@ main {
 }
 .tm-status-e_re::before { background: var(--primary); }
 
+.tm-status-ne_pritje {
+  background: var(--warning-light);
+  color: #856404;
+}
+.tm-status-ne_pritje::before { background: var(--warning); }
+
 .tm-status-caktuar {
   background: var(--warning-light);
   color: #92400e;

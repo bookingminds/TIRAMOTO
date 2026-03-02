@@ -31,6 +31,7 @@ router.get('/', async (req, res) => {
       SELECT
         COUNT(*) as te_gjitha,
         COUNT(*) FILTER (WHERE statusi = 'E_RE') as e_re,
+        COUNT(*) FILTER (WHERE statusi = 'NE_PRITJE') as ne_pritje,
         COUNT(*) FILTER (WHERE statusi = 'CAKTUAR') as caktuar,
         COUNT(*) FILTER (WHERE statusi = 'MARRE') as marre,
         COUNT(*) FILTER (WHERE statusi = 'DOREZUAR') as dorezuar,
@@ -41,6 +42,7 @@ router.get('/', async (req, res) => {
     const numrat = {
       te_gjitha: parseInt(counts.te_gjitha),
       e_re: parseInt(counts.e_re),
+      ne_pritje: parseInt(counts.ne_pritje),
       caktuar: parseInt(counts.caktuar),
       marre: parseInt(counts.marre),
       dorezuar: parseInt(counts.dorezuar),
@@ -140,10 +142,58 @@ router.post('/korrier/:id/toggle', async (req, res) => {
   }
 });
 
+router.post('/porosi/:id/konfirmo', async (req, res) => {
+  try {
+    const porosi = await db.getOne(
+      "SELECT p.*, kr.emri as korrier_emri FROM porosite p LEFT JOIN perdoruesit kr ON p.korrier_id = kr.id WHERE p.id = $1 AND p.statusi = 'NE_PRITJE'",
+      [req.params.id]
+    );
+    if (!porosi) return res.redirect('/admin');
+
+    await db.run(
+      "UPDATE porosite SET statusi = 'CAKTUAR', caktuar_me = NOW() WHERE id = $1",
+      [porosi.id]
+    );
+    await db.run(
+      'INSERT INTO historiku (porosi_id, veprimi, perdoruesi_id) VALUES ($1, $2, $3)',
+      [porosi.id, `Admini konfirmoi caktimin tek korrieri ${porosi.korrier_emri}`, req.session.user.id]
+    );
+
+    res.redirect(`/admin/porosi/${porosi.id}`);
+  } catch (err) {
+    console.error('[ADMIN] Confirm error:', err.message);
+    res.redirect('/admin');
+  }
+});
+
+router.post('/porosi/:id/refuzo', async (req, res) => {
+  try {
+    const porosi = await db.getOne(
+      "SELECT p.*, kr.emri as korrier_emri FROM porosite p LEFT JOIN perdoruesit kr ON p.korrier_id = kr.id WHERE p.id = $1 AND p.statusi = 'NE_PRITJE'",
+      [req.params.id]
+    );
+    if (!porosi) return res.redirect('/admin');
+
+    await db.run(
+      "UPDATE porosite SET korrier_id = NULL, statusi = 'E_RE' WHERE id = $1",
+      [porosi.id]
+    );
+    await db.run(
+      'INSERT INTO historiku (porosi_id, veprimi, perdoruesi_id) VALUES ($1, $2, $3)',
+      [porosi.id, `Admini refuzoi kërkesën e korrierit ${porosi.korrier_emri}`, req.session.user.id]
+    );
+
+    res.redirect(`/admin/porosi/${porosi.id}`);
+  } catch (err) {
+    console.error('[ADMIN] Reject error:', err.message);
+    res.redirect('/admin');
+  }
+});
+
 router.post('/porosi/:id/hiq-korrier', async (req, res) => {
   try {
     const porosi = await db.getOne(
-      "SELECT * FROM porosite WHERE id = $1 AND statusi IN ('CAKTUAR', 'MARRE')",
+      "SELECT * FROM porosite WHERE id = $1 AND statusi IN ('NE_PRITJE', 'CAKTUAR', 'MARRE')",
       [req.params.id]
     );
     if (!porosi) return res.redirect('/admin');

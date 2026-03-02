@@ -109,7 +109,23 @@
         <div class="divider"></div>
 
         <!-- Admin actions -->
+        <% if (porosi.statusi === 'NE_PRITJE') { %>
+        <div class="tm-alert tm-alert-warning mb-3">
+          <i class="bi bi-bell-fill"></i>
+          <span>Korrieri <strong><%= porosi.korrier_emri %></strong> kërkon të marrë këtë porosi. Konfirmo ose refuzo.</span>
+        </div>
+        <% } %>
+
         <div class="d-flex flex-wrap gap-2 mb-3">
+          <% if (porosi.statusi === 'NE_PRITJE') { %>
+          <form method="POST" action="/admin/porosi/<%= porosi.id %>/konfirmo" style="display:inline">
+            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i> Konfirmo</button>
+          </form>
+          <form method="POST" action="/admin/porosi/<%= porosi.id %>/refuzo" style="display:inline">
+            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-x-lg"></i> Refuzo</button>
+          </form>
+          <% } %>
+
           <% if (porosi.statusi === 'E_RE' && !porosi.korrier_id) { %>
           <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#caktoKorrier">
             <i class="bi bi-person-plus"></i> Cakto korrierin
