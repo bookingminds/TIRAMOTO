@@ -161,6 +161,28 @@ main {
   color: #fff;
 }
 
+.tm-notif-badge {
+  position: absolute;
+  top: 2px;
+  right: -4px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: notifPulse 2s infinite;
+}
+@keyframes notifPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
 .tm-role-badge {
   background: var(--gray-700);
   color: var(--gray-300);

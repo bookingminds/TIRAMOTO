@@ -283,4 +283,24 @@ router.post('/shto-korrier', async (req, res) => {
   }
 });
 
+router.get('/api/notifications', async (req, res) => {
+  try {
+    const counts = await db.getOne(`
+      SELECT
+        (SELECT COUNT(*) FROM porosite WHERE statusi = 'NE_PRITJE') as ne_pritje,
+        (SELECT COUNT(*) FROM porosite WHERE statusi = 'E_RE') as e_re,
+        (SELECT COUNT(*) FROM perdoruesit WHERE roli = 'klient' AND krijuar_me > NOW() - INTERVAL '24 hours') as klient_te_ri
+    `);
+
+    res.json({
+      ne_pritje: parseInt(counts.ne_pritje),
+      e_re: parseInt(counts.e_re),
+      klient_te_ri: parseInt(counts.klient_te_ri),
+      total: parseInt(counts.ne_pritje) + parseInt(counts.e_re)
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Gabim' });
+  }
+});
+
 module.exports = router;

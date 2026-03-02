@@ -30,7 +30,12 @@
           <li class="nav-item"><a class="nav-link" href="/korrier?tab=te-reja"><i class="bi bi-lightning-charge me-1"></i>Të reja</a></li>
           <li class="nav-item"><a class="nav-link" href="/korrier?tab=te-miat"><i class="bi bi-person-check me-1"></i>Të miat</a></li>
           <% } else if (user.roli === 'admin') { %>
-          <li class="nav-item"><a class="nav-link" href="/admin"><i class="bi bi-grid-1x2 me-1"></i>Paneli</a></li>
+          <li class="nav-item">
+            <a class="nav-link position-relative" href="/admin">
+              <i class="bi bi-grid-1x2 me-1"></i>Paneli
+              <span id="notifBadge" class="tm-notif-badge" style="display:none">0</span>
+            </a>
+          </li>
           <li class="nav-item"><a class="nav-link" href="/admin/korrieret"><i class="bi bi-people me-1"></i>Korrierët</a></li>
           <% } %>
         </ul>
@@ -49,5 +54,21 @@
       </div>
     </div>
   </nav>
+  <% } %>
+  <% if (typeof user !== 'undefined' && user && user.roli === 'admin') { %>
+  <script>
+  (function(){
+    async function checkBadge(){
+      try {
+        const r = await fetch('/admin/api/notifications');
+        const d = await r.json();
+        const b = document.getElementById('notifBadge');
+        if(b){ b.textContent=d.total; b.style.display=d.total>0?'inline-flex':'none'; }
+      } catch(e){}
+    }
+    checkBadge();
+    setInterval(checkBadge, 20000);
+  })();
+  </script>
   <% } %>
   <main class="<%= (typeof user !== 'undefined' && user) ? 'container py-4 fade-in' : '' %>">

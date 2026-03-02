@@ -129,4 +129,85 @@
   </div>
 </div>
 
+<script>
+(function() {
+  let lastNePritje = <%= numrat.ne_pritje %>;
+  let lastERe = <%= numrat.e_re %>;
+  let soundEnabled = true;
+
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  function playSound() {
+    if (!soundEnabled) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 800;
+      gain.gain.value = 0.3;
+      osc.start();
+      osc.stop(ctx.currentTime + 0.15);
+      setTimeout(() => {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.frequency.value = 1000;
+        gain2.gain.value = 0.3;
+        osc2.start();
+        osc2.stop(ctx.currentTime + 0.2);
+      }, 180);
+    } catch(e) {}
+  }
+
+  function showNotification(title, body) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const n = new Notification(title, { body, icon: '/favicon.ico', tag: 'tiramoto-admin' });
+      n.onclick = () => { window.focus(); n.close(); };
+    }
+  }
+
+  async function checkNotifications() {
+    try {
+      const res = await fetch('/admin/api/notifications');
+      const data = await res.json();
+
+      if (data.ne_pritje > lastNePritje) {
+        const diff = data.ne_pritje - lastNePritje;
+        playSound();
+        showNotification('TIRAMOTO', diff + ' porosi të reja presin konfirmimin!');
+      }
+
+      if (data.e_re > lastERe) {
+        const diff = data.e_re - lastERe;
+        playSound();
+        showNotification('TIRAMOTO', diff + ' porosi të reja u krijuan!');
+      }
+
+      lastNePritje = data.ne_pritje;
+      lastERe = data.e_re;
+
+      const badge = document.getElementById('notifBadge');
+      if (badge) {
+        badge.textContent = data.total;
+        badge.style.display = data.total > 0 ? 'inline-flex' : 'none';
+      }
+
+      if (data.ne_pritje > 0 || data.e_re > 0) {
+        document.title = '(' + data.total + ') Paneli - TIRAMOTO';
+      } else {
+        document.title = 'Paneli - TIRAMOTO';
+      }
+    } catch(e) {}
+  }
+
+  setInterval(checkNotifications, 20000);
+  setTimeout(checkNotifications, 3000);
+})();
+</script>
+
 <%- include('../partials/footer') %>
