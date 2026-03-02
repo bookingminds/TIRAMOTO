@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS porosite (
   telefoni_dorezimit TEXT NOT NULL,
   pershkrimi TEXT NOT NULL,
   shenime TEXT,
-  cmimi REAL DEFAULT 300,
+  cmimi REAL DEFAULT 400,
   statusi TEXT DEFAULT 'E_RE' CHECK (statusi IN ('E_RE', 'NE_PRITJE', 'CAKTUAR', 'MARRE', 'DOREZUAR', 'ANULUAR')),
   krijuar_me TIMESTAMPTZ DEFAULT NOW(),
   caktuar_me TIMESTAMPTZ,

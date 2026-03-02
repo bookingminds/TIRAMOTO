@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../db/init');
 const { kerkoRolin } = require('../middleware/auth');
 
-const CMIMI_FIKS = 300;
+const CMIMI_FIKS = 400;
 
 router.use(kerkoRolin('klient'));
 
