@@ -11,6 +11,13 @@
   </div>
 </div>
 
+<% if (typeof korrierAktiv !== 'undefined' && !korrierAktiv) { %>
+<div class="tm-alert tm-alert-danger mb-4">
+  <i class="bi bi-exclamation-triangle-fill"></i>
+  <span>Llogaria jote është çaktivizuar nga admini. Nuk mund të marrësh porosi të reja. Kontakto dispatcherin.</span>
+</div>
+<% } %>
+
 <!-- Flash messages -->
 <% if (mesazh) { %>
 <div class="tm-alert tm-alert-success mb-4">

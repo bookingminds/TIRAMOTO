@@ -108,15 +108,32 @@
 
         <div class="divider"></div>
 
-        <!-- Admin actions: cancel only -->
-        <% if (porosi.statusi !== 'DOREZUAR' && porosi.statusi !== 'ANULUAR') { %>
-        <form method="POST" action="/admin/porosi/<%= porosi.id %>/anulo" class="mb-3"
-              onsubmit="return confirm('Jeni i sigurt që doni ta anuloni këtë porosi?')">
-          <button type="submit" class="btn btn-outline-danger btn-sm">
-            <i class="bi bi-x-circle"></i> Anulo porosinë
+        <!-- Admin actions -->
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <% if (porosi.statusi === 'E_RE' && !porosi.korrier_id) { %>
+          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#caktoKorrier">
+            <i class="bi bi-person-plus"></i> Cakto korrierin
           </button>
-        </form>
-        <% } %>
+          <% } %>
+
+          <% if ((porosi.statusi === 'CAKTUAR' || porosi.statusi === 'MARRE') && porosi.korrier_id) { %>
+          <form method="POST" action="/admin/porosi/<%= porosi.id %>/hiq-korrier"
+                onsubmit="return confirm('Hiq korrierin nga kjo porosi? Porosia kthehet në statusin E Re.')">
+            <button type="submit" class="btn btn-outline-warning btn-sm">
+              <i class="bi bi-person-dash"></i> Hiq korrierin
+            </button>
+          </form>
+          <% } %>
+
+          <% if (porosi.statusi !== 'DOREZUAR' && porosi.statusi !== 'ANULUAR') { %>
+          <form method="POST" action="/admin/porosi/<%= porosi.id %>/anulo"
+                onsubmit="return confirm('Jeni i sigurt që doni ta anuloni këtë porosi?')">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+              <i class="bi bi-x-circle"></i> Anulo porosinë
+            </button>
+          </form>
+          <% } %>
+        </div>
 
         <% if (porosi.statusi === 'ANULUAR') { %>
         <div class="tm-alert tm-alert-danger mb-3">
@@ -154,6 +171,37 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- Assign courier modal -->
+<div class="modal fade" id="caktoKorrier" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-person-plus me-2"></i>Cakto korrierin</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Mbyll"></button>
+      </div>
+      <form method="POST" action="/admin/porosi/<%= porosi.id %>/cakto-korrier">
+        <div class="modal-body">
+          <% if (typeof korrieret !== 'undefined' && korrieret.length > 0) { %>
+          <label class="form-label">Zgjidhni korrierin</label>
+          <select name="korrier_id" class="form-select" required>
+            <option value="">— Zgjidhni —</option>
+            <% korrieret.forEach(k => { %>
+            <option value="<%= k.id %>"><%= k.emri %></option>
+            <% }) %>
+          </select>
+          <% } else { %>
+          <p class="text-muted">Nuk ka korrierë aktivë.</p>
+          <% } %>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Anulo</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Cakto</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 

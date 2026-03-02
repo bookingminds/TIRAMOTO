@@ -49,8 +49,12 @@ const db = {
 
 async function initDatabase() {
   try {
-    const schemaSQL = fs.readFileSync(path.join(__dirname, '..', 'migrations', '001_schema.sql'), 'utf-8');
-    await pool.query(schemaSQL);
+    const migrationsDir = path.join(__dirname, '..', 'migrations');
+    const migrationFiles = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+    for (const file of migrationFiles) {
+      const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf-8');
+      await pool.query(sql);
+    }
     console.log('[DB] Schema initialized');
 
     const admin = await db.getOne('SELECT id FROM perdoruesit WHERE email = $1', ['admin@tiramoto.al']);

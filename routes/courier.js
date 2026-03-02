@@ -7,6 +7,12 @@ const MAX_AKTIVE = 5;
 
 router.use(kerkoRolin('korrier'));
 
+router.use(async (req, res, next) => {
+  const korrier = await db.getOne('SELECT aktiv FROM perdoruesit WHERE id = $1', [req.session.user.id]);
+  res.locals.korrierAktiv = korrier?.aktiv !== false;
+  next();
+});
+
 router.get('/', async (req, res) => {
   try {
     const tab = req.query.tab || 'te-reja';
@@ -52,6 +58,10 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/merr', async (req, res) => {
+  if (!res.locals.korrierAktiv) {
+    return res.redirect('/korrier?tab=te-reja&gabim=' + encodeURIComponent('Llogaria jote është çaktivizuar nga admini. Kontakto dispatcherin.'));
+  }
+
   const client = await db.pool.connect();
   try {
     let { porosi_ids } = req.body;

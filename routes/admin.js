@@ -75,7 +75,11 @@ router.get('/porosi/:id', async (req, res) => {
       ORDER BY h.krijuar_me ASC
     `, [porosi.id]);
 
-    res.render('admin/porosi', { porosi, historiku });
+    const korrieret = await db.getAll(
+      "SELECT id, emri FROM perdoruesit WHERE roli = 'korrier' AND aktiv = true ORDER BY emri"
+    );
+
+    res.render('admin/porosi', { porosi, historiku, korrieret });
   } catch (err) {
     console.error('[ADMIN] Order detail error:', err.message);
     res.status(500).render('gabim', { mesazhi: 'Gabim i brendshëm.' });
@@ -111,12 +115,101 @@ router.get('/korrieret', async (req, res) => {
         (SELECT COUNT(*) FROM porosite WHERE korrier_id = u.id AND statusi = 'DOREZUAR') as dorezuar,
         (SELECT COUNT(*) FROM porosite WHERE korrier_id = u.id AND statusi IN ('CAKTUAR', 'MARRE')) as aktive
       FROM perdoruesit u WHERE u.roli = 'korrier'
+      ORDER BY u.aktiv DESC NULLS FIRST, u.emri ASC
     `);
 
     res.render('admin/korrieret', { korrieret });
   } catch (err) {
     console.error('[ADMIN] Couriers error:', err.message);
     res.status(500).render('gabim', { mesazhi: 'Gabim i brendshëm.' });
+  }
+});
+
+router.post('/korrier/:id/toggle', async (req, res) => {
+  try {
+    const korrier = await db.getOne('SELECT id, aktiv FROM perdoruesit WHERE id = $1 AND roli = $2', [req.params.id, 'korrier']);
+    if (!korrier) return res.redirect('/admin/korrieret');
+
+    const newStatus = korrier.aktiv === false ? true : false;
+    await db.run('UPDATE perdoruesit SET aktiv = $1 WHERE id = $2', [newStatus, korrier.id]);
+
+    res.redirect('/admin/korrieret');
+  } catch (err) {
+    console.error('[ADMIN] Toggle courier error:', err.message);
+    res.redirect('/admin/korrieret');
+  }
+});
+
+router.post('/porosi/:id/hiq-korrier', async (req, res) => {
+  try {
+    const porosi = await db.getOne(
+      "SELECT * FROM porosite WHERE id = $1 AND statusi IN ('CAKTUAR', 'MARRE')",
+      [req.params.id]
+    );
+    if (!porosi) return res.redirect('/admin');
+
+    await db.run(
+      "UPDATE porosite SET korrier_id = NULL, statusi = 'E_RE', caktuar_me = NULL, marre_me = NULL WHERE id = $1",
+      [porosi.id]
+    );
+    await db.run(
+      'INSERT INTO historiku (porosi_id, veprimi, perdoruesi_id) VALUES ($1, $2, $3)',
+      [porosi.id, 'Porosia u hoq nga korrieri nga admini', req.session.user.id]
+    );
+
+    res.redirect(`/admin/porosi/${porosi.id}`);
+  } catch (err) {
+    console.error('[ADMIN] Unassign error:', err.message);
+    res.redirect('/admin');
+  }
+});
+
+router.post('/porosi/:id/cakto-korrier', async (req, res) => {
+  try {
+    const { korrier_id } = req.body;
+    const porosi = await db.getOne(
+      "SELECT * FROM porosite WHERE id = $1 AND statusi = 'E_RE'",
+      [req.params.id]
+    );
+    if (!porosi) return res.redirect('/admin');
+
+    const korrier = await db.getOne(
+      "SELECT id, emri FROM perdoruesit WHERE id = $1 AND roli = 'korrier' AND aktiv = true",
+      [korrier_id]
+    );
+    if (!korrier) return res.redirect(`/admin/porosi/${req.params.id}`);
+
+    await db.run(
+      "UPDATE porosite SET korrier_id = $1, statusi = 'CAKTUAR', caktuar_me = NOW() WHERE id = $2",
+      [korrier.id, porosi.id]
+    );
+    await db.run(
+      'INSERT INTO historiku (porosi_id, veprimi, perdoruesi_id) VALUES ($1, $2, $3)',
+      [porosi.id, `Porosia u caktua tek korrieri ${korrier.emri} nga admini`, req.session.user.id]
+    );
+
+    res.redirect(`/admin/porosi/${porosi.id}`);
+  } catch (err) {
+    console.error('[ADMIN] Assign courier error:', err.message);
+    res.redirect('/admin');
+  }
+});
+
+router.post('/korrier/:id/fshi', async (req, res) => {
+  try {
+    const aktive = await db.getOne(
+      "SELECT COUNT(*) as n FROM porosite WHERE korrier_id = $1 AND statusi IN ('CAKTUAR', 'MARRE')",
+      [req.params.id]
+    );
+    if (parseInt(aktive.n) > 0) {
+      return res.redirect('/admin/korrieret?gabim=' + encodeURIComponent('Korrieri ka porosi aktive. Hiq porosite para se ta fshish.'));
+    }
+
+    await db.run("DELETE FROM perdoruesit WHERE id = $1 AND roli = 'korrier'", [req.params.id]);
+    res.redirect('/admin/korrieret');
+  } catch (err) {
+    console.error('[ADMIN] Delete courier error:', err.message);
+    res.redirect('/admin/korrieret');
   }
 });
 
