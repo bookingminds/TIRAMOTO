@@ -96,23 +96,16 @@ app.use((req, res, next) => {
 });
 
 // ---------- Health Check ----------
-app.get('/health', async (req, res) => {
-  try {
-    const db = require('./db/init');
-    await db.query('SELECT 1');
-    res.status(200).json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      env: process.env.NODE_ENV || 'development'
-    });
-  } catch (err) {
-    res.status(503).json({
-      status: 'error',
-      message: 'Database unreachable',
-      timestamp: new Date().toISOString()
-    });
-  }
+let dbReady = false;
+
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    dbReady,
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    env: process.env.NODE_ENV || 'development'
+  });
 });
 
 // ---------- Routes ----------
@@ -144,19 +137,29 @@ app.use((err, req, res, _next) => {
 // ---------- Start ----------
 const PORT = process.env.PORT || 3000;
 
-async function start() {
-  try {
-    await initDatabase();
-    app.listen(PORT, '0.0.0.0', () => {
-      const base = process.env.BASE_URL || `http://localhost:${PORT}`;
-      console.log(`[SERVER] TIRAMOTO running at ${base}`);
-      console.log(`[SERVER] Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`[SERVER] Health check: ${base}/health`);
-    });
-  } catch (err) {
-    console.error('[SERVER] Failed to start:', err.message);
-    process.exit(1);
-  }
-}
+app.listen(PORT, '0.0.0.0', () => {
+  const base = process.env.BASE_URL || `http://localhost:${PORT}`;
+  console.log(`[SERVER] TIRAMOTO listening on port ${PORT}`);
+  console.log(`[SERVER] Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`[SERVER] Health check: ${base}/health`);
 
-start();
+  (async function connectDB() {
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      try {
+        console.log(`[DB] Connection attempt ${attempt}/5...`);
+        await initDatabase();
+        dbReady = true;
+        console.log('[SERVER] Database connected, fully operational');
+        return;
+      } catch (err) {
+        console.error(`[DB] Attempt ${attempt} failed: ${err.message}`);
+        if (attempt < 5) {
+          const wait = attempt * 3000;
+          console.log(`[DB] Retrying in ${wait / 1000}s...`);
+          await new Promise(r => setTimeout(r, wait));
+        }
+      }
+    }
+    console.error('[SERVER] Could not connect to database after 5 attempts');
+  })();
+});

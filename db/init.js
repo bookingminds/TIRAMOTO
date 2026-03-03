@@ -16,7 +16,8 @@ const pool = new Pool({
   ssl: getSSLConfig(),
   max: 10,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000
+  connectionTimeoutMillis: 15000,
+  statement_timeout: 10000
 });
 
 const dbHost = process.env.DATABASE_URL ? process.env.DATABASE_URL.split('@')[1]?.split('/')[0] : 'NOT SET';
