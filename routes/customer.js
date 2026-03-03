@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../db/init');
 const { kerkoRolin } = require('../middleware/auth');
 
+const { notifyNewOrder } = require('../utils/email');
 const CMIMI_FIKS = 400;
 
 router.use(kerkoRolin('klient'));
@@ -51,6 +52,13 @@ router.post('/porosi-e-re', async (req, res) => {
       'INSERT INTO historiku (porosi_id, veprimi, perdoruesi_id) VALUES ($1, $2, $3)',
       [newId, 'Porosia u krijua', req.session.user.id]
     );
+
+    notifyNewOrder({
+      id: newId,
+      klient_emri: req.session.user.emri,
+      pershkrimi, adresa_marrjes, adresa_dorezimit,
+      cmimi: CMIMI_FIKS
+    }).catch(() => {});
 
     res.redirect('/klient');
   } catch (err) {

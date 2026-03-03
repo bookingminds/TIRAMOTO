@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/init');
 const { kerkoRolin } = require('../middleware/auth');
+const { notifyCourierRequest } = require('../utils/email');
 
 const MAX_AKTIVE = 3;
 
@@ -111,6 +112,11 @@ router.post('/merr', async (req, res) => {
           [id, 'Korrieri kërkoi të marrë porosinë (në pritje konfirmimi)', req.session.user.id]
         );
         kerkuarSukseshem++;
+
+        const porosiData = await client.query('SELECT p.*, kl.emri as klient_emri FROM porosite p JOIN perdoruesit kl ON p.klient_id = kl.id WHERE p.id = $1', [id]);
+        if (porosiData.rows[0]) {
+          notifyCourierRequest(porosiData.rows[0], req.session.user.emri).catch(() => {});
+        }
       } else {
         vecTeMarrura++;
       }

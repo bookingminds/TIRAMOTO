@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const db = require('../db/init');
+const { notifyNewUser } = require('../utils/email');
 
 router.get('/hyr', (req, res) => {
   if (req.session.user) return res.redirect('/');
@@ -69,6 +70,8 @@ router.post('/regjistrohu', async (req, res) => {
       telefoni: user.telefoni,
       roli: user.roli
     };
+
+    notifyNewUser({ emri, email, telefoni }).catch(() => {});
 
     res.redirect('/');
   } catch (err) {
