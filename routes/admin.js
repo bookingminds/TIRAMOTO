@@ -293,19 +293,18 @@ router.get('/test-email', async (req, res) => {
     clearTimeout(timeout);
     if (!res.headersSent) res.json({
       status: 'ok',
-      message: 'Email sent!',
-      smtp_user: process.env.SMTP_USER || 'NOT SET',
+      message: 'Email sent! Check your inbox.',
       admin_email: process.env.ADMIN_EMAIL || 'NOT SET',
-      response: info ? info.response : 'no info',
-      messageId: info ? info.messageId : 'none'
+      resend_key: process.env.RESEND_API_KEY ? 'SET' : 'NOT SET',
+      email_id: info ? info.id : 'none'
     });
   } catch (err) {
     clearTimeout(timeout);
     if (!res.headersSent) res.json({
       status: 'error',
       message: err.message,
-      smtp_user: process.env.SMTP_USER || 'NOT SET',
-      admin_email: process.env.ADMIN_EMAIL || 'NOT SET'
+      admin_email: process.env.ADMIN_EMAIL || 'NOT SET',
+      resend_key: process.env.RESEND_API_KEY ? 'SET' : 'NOT SET'
     });
   }
 });

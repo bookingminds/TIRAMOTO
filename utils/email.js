@@ -1,50 +1,34 @@
-const nodemailer = require('nodemailer');
-
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'hb.groupconstruction@gmail.com';
 
-let transporter = null;
-
-function getTransporter() {
-  if (transporter) return transporter;
-
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-
-  if (!user || !pass) {
-    console.log('[EMAIL] SMTP not configured. SMTP_USER:', user ? 'SET' : 'MISSING', 'SMTP_PASS:', pass ? 'SET' : 'MISSING');
-    return null;
+async function sendAdminNotification(subject, html) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.log('[EMAIL] RESEND_API_KEY not set, skipping email');
+    throw new Error('RESEND_API_KEY not configured');
   }
 
-  transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: { user, pass },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
-    tls: { rejectUnauthorized: false }
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: 'TIRAMOTO <onboarding@resend.dev>',
+      to: [ADMIN_EMAIL],
+      subject: `[TIRAMOTO] ${subject}`,
+      html
+    })
   });
 
-  transporter.verify()
-    .then(() => console.log('[EMAIL] SMTP verified OK -', user))
-    .catch(err => console.error('[EMAIL] SMTP verify FAILED:', err.message));
+  const data = await res.json();
+  if (!res.ok) {
+    console.error('[EMAIL] Resend error:', data);
+    throw new Error(data.message || 'Email send failed');
+  }
 
-  return transporter;
-}
-
-async function sendAdminNotification(subject, html) {
-  const t = getTransporter();
-  if (!t) throw new Error('SMTP not configured - SMTP_USER or SMTP_PASS missing');
-
-  const info = await t.sendMail({
-    from: `"TIRAMOTO" <${process.env.SMTP_USER}>`,
-    to: ADMIN_EMAIL,
-    subject: `[TIRAMOTO] ${subject}`,
-    html
-  });
-  console.log('[EMAIL] Sent:', subject, '| Response:', info.response, '| MessageId:', info.messageId);
-  return info;
+  console.log('[EMAIL] Sent:', subject, '| ID:', data.id);
+  return data;
 }
 
 async function notifyNewOrder(porosi) {
