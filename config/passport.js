@@ -2,6 +2,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const db = require('../db/init');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { notifyNewUser } = require('../utils/email');
 
 module.exports = function (passport) {
   passport.serializeUser((user, done) => {
@@ -57,6 +58,7 @@ module.exports = function (passport) {
       );
 
       const newUser = await db.getOne('SELECT * FROM perdoruesit WHERE google_id = $1', [profile.id]);
+      notifyNewUser({ emri: displayName, email, telefoni: '' }).catch(() => {});
       return done(null, newUser);
     } catch (err) {
       return done(err, false);
