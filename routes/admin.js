@@ -285,16 +285,28 @@ router.post('/shto-korrier', async (req, res) => {
 
 router.get('/test-email', async (req, res) => {
   const timeout = setTimeout(() => {
-    res.json({ status: 'error', message: 'SMTP connection timed out after 20s. Port may be blocked.' });
+    if (!res.headersSent) res.json({ status: 'error', message: 'SMTP connection timed out after 20s.' });
   }, 20000);
   try {
-    const { notifyNewUser } = require('../utils/email');
-    await notifyNewUser({ emri: 'Test User', email: 'test@test.com', telefoni: '+355 123' });
+    const emailUtil = require('../utils/email');
+    const info = await emailUtil.notifyNewUser({ emri: 'Test User', email: 'test@test.com', telefoni: '+355 123' });
     clearTimeout(timeout);
-    res.json({ status: 'ok', message: 'Email sent! Check your inbox.' });
+    if (!res.headersSent) res.json({
+      status: 'ok',
+      message: 'Email sent!',
+      smtp_user: process.env.SMTP_USER || 'NOT SET',
+      admin_email: process.env.ADMIN_EMAIL || 'NOT SET',
+      response: info ? info.response : 'no info',
+      messageId: info ? info.messageId : 'none'
+    });
   } catch (err) {
     clearTimeout(timeout);
-    res.json({ status: 'error', message: err.message });
+    if (!res.headersSent) res.json({
+      status: 'error',
+      message: err.message,
+      smtp_user: process.env.SMTP_USER || 'NOT SET',
+      admin_email: process.env.ADMIN_EMAIL || 'NOT SET'
+    });
   }
 });
 

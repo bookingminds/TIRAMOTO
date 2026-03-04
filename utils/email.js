@@ -35,19 +35,16 @@ function getTransporter() {
 
 async function sendAdminNotification(subject, html) {
   const t = getTransporter();
-  if (!t) return;
+  if (!t) throw new Error('SMTP not configured - SMTP_USER or SMTP_PASS missing');
 
-  try {
-    await t.sendMail({
-      from: `"TIRAMOTO" <${process.env.SMTP_USER}>`,
-      to: ADMIN_EMAIL,
-      subject: `[TIRAMOTO] ${subject}`,
-      html
-    });
-    console.log('[EMAIL] Sent:', subject);
-  } catch (err) {
-    console.error('[EMAIL] Failed:', err.message);
-  }
+  const info = await t.sendMail({
+    from: `"TIRAMOTO" <${process.env.SMTP_USER}>`,
+    to: ADMIN_EMAIL,
+    subject: `[TIRAMOTO] ${subject}`,
+    html
+  });
+  console.log('[EMAIL] Sent:', subject, '| Response:', info.response, '| MessageId:', info.messageId);
+  return info;
 }
 
 async function notifyNewOrder(porosi) {
@@ -112,7 +109,7 @@ async function notifyNewUser(user) {
       </div>
     </div>
   `;
-  await sendAdminNotification(`Klient i ri: ${user.emri}`, html);
+  return await sendAdminNotification(`Klient i ri: ${user.emri}`, html);
 }
 
 module.exports = { notifyNewOrder, notifyCourierRequest, notifyNewUser };
