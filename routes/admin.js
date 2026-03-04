@@ -284,11 +284,16 @@ router.post('/shto-korrier', async (req, res) => {
 });
 
 router.get('/test-email', async (req, res) => {
+  const timeout = setTimeout(() => {
+    res.json({ status: 'error', message: 'SMTP connection timed out after 20s. Port may be blocked.' });
+  }, 20000);
   try {
     const { notifyNewUser } = require('../utils/email');
     await notifyNewUser({ emri: 'Test User', email: 'test@test.com', telefoni: '+355 123' });
+    clearTimeout(timeout);
     res.json({ status: 'ok', message: 'Email sent! Check your inbox.' });
   } catch (err) {
+    clearTimeout(timeout);
     res.json({ status: 'error', message: err.message });
   }
 });
