@@ -16,11 +16,17 @@ function getTransporter() {
   }
 
   transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user, pass }
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false }
   });
 
-  console.log('[EMAIL] Configured with', user);
+  transporter.verify()
+    .then(() => console.log('[EMAIL] SMTP verified OK -', user))
+    .catch(err => console.error('[EMAIL] SMTP verify FAILED:', err.message));
+
   return transporter;
 }
 
